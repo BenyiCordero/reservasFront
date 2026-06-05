@@ -39,7 +39,6 @@ async function cargarDatos() {
     }
   }
 }
-}
 
 function renderTable() {
   const tbody = document.getElementById('tableBody');

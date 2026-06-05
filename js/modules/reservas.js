@@ -122,6 +122,7 @@ function formatWeekLabel(weekStart) {
 
 function renderCalendario() {
   const grid = document.getElementById('calendarGrid');
+  const today = Utils.formatDateISO(new Date());
 
   let html = '<div class="time-col"><div class="day-header" style="background:transparent;border-bottom:none">&nbsp;</div>';
 
@@ -139,9 +140,10 @@ function renderCalendario() {
   for (let d = 0; d < 7; d++) {
     const date = Utils.addDays(state.weekStart, d);
     const dateStr = Utils.formatDateISO(date);
+    const isToday = dateStr === today;
 
     html += '<div class="day-col" data-day="' + d + '" data-date="' + dateStr + '">';
-    html += '<div class="day-header">' +
+    html += '<div class="day-header' + (isToday ? ' today' : '') + '">' +
       Utils.DAYS_SHORT[d] + '<span class="day-num">' + date.getDate() + '</span></div>';
     html += '<div class="day-slots" data-day="' + d + '" data-date="' + dateStr + '">';
 
@@ -179,10 +181,6 @@ function renderCalendario() {
     }
     initDrag(el);
   });
-
-  grid.classList.remove('animate-in');
-  void grid.offsetWidth;
-  grid.classList.add('animate-in');
 }
 
 function buildCardHTML(item, isBorrador) {
@@ -216,11 +214,11 @@ function timeToPixels(timeStr) {
   if (!timeStr) return 0;
   const [h, m] = timeStr.split(':').map(Number);
   const totalMinutes = (h - TIME_START) * 60 + m;
-  return (totalMinutes / SLOT_MINUTES) * SLOT_HEIGHT;
+  return (totalMinutes / SLOT_MINUTES) * (SLOT_HEIGHT / 2);
 }
 
 function pixelsToTime(pixels) {
-  const slotIndex = Math.round(pixels / SLOT_HEIGHT);
+  const slotIndex = Math.round(pixels / (SLOT_HEIGHT / 2));
   const totalMinutes = slotIndex * SLOT_MINUTES;
   const h = Math.floor(totalMinutes / 60) + TIME_START;
   const m = totalMinutes % 60;
@@ -234,8 +232,7 @@ function onSlotClick(e) {
   const date = Utils.addDays(state.weekStart, day);
   const dateStr = Utils.formatDateISO(date);
 
-  const h = Math.floor(slotIdx / 2) + TIME_START;
-  const m = (slotIdx % 2) * 30;
+  const [h, m] = pixelsToTime(slotIdx * (SLOT_HEIGHT / 2)).split(':').map(Number);
   const timeStr = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
 
   const dayLabel = Utils.DAYS[date.getDay()] + ' ' + date.getDate();
@@ -325,7 +322,7 @@ async function confirmarReserva(tempId) {
 }
 
 async function eliminarReserva(id) {
-  const ok = await Utils.confirmAction('¿Desea cancelar esta reserva?', 'Cancelar Reserva', 'Eliminar');
+  const ok = await Utils.confirmAction('¿Desea cancelar esta reserva?', 'Cancelar Reserva', 'Eliminarx');
   if (!ok) return;
 
   try {
