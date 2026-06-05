@@ -1,0 +1,89 @@
+<div class="container-fluid px-0">
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-4 gap-2">
+    <div>
+      <h4 class="fw-bold mb-1">Calendario de Reservas</h4>
+      <p class="text-muted small mb-0">Gestiona las reservas de las salas</p>
+    </div>
+  </div>
+
+  <div class="panel-card p-3 mb-4">
+    <div class="calendar-header">
+      <select class="form-select" id="selSala" style="min-width:200px">
+        <option value="">Seleccione una sala</option>
+      </select>
+      <div class="calendar-nav">
+        <button type="button" id="btnSemanaAnt"><i class="fas fa-chevron-left"></i></button>
+        <span id="lblSemana">Cargando...</span>
+        <button type="button" id="btnSemanaSig"><i class="fas fa-chevron-right"></i></button>
+        <button type="button" class="btn btn-sm btn-outline-primary ms-2" id="btnHoy"><i class="fas fa-calendar-day me-1"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-card p-3">
+    <div class="calendar-grid" id="calendarGrid">
+      <div class="time-col">
+        <div class="day-header" style="background:transparent;border-bottom:none">&nbsp;</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="calendarLoading" class="text-center py-5 d-none">
+    <div class="spinner-table"></div>
+    <p class="text-muted mt-2">Cargando reservas...</p>
+  </div>
+</div>
+
+<div class="modal fade" id="reservaModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold">Nueva Reserva</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="bg-light rounded-3 p-3 mb-3">
+          <div class="row g-2">
+            <div class="col-6">
+              <small class="text-muted text-uppercase fw-semibold">Día</small>
+              <div class="fw-semibold" id="modalDia">-</div>
+            </div>
+            <div class="col-6">
+              <small class="text-muted text-uppercase fw-semibold">Hora</small>
+              <div class="fw-semibold" id="modalHora">-</div>
+            </div>
+          </div>
+        </div>
+        <form id="formReserva" novalidate>
+          <input type="hidden" id="modalFecha">
+          <input type="hidden" id="modalHoraInicio">
+          <div class="mb-3">
+            <label class="form-label">Área <span class="text-danger">*</span></label>
+            <select class="form-select" id="modalArea" required>
+              <option value="">Seleccionar área</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Duración</label>
+            <select class="form-select" id="modalDuracion"></select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btnCrearReserva">
+          <i class="fas fa-plus me-1"></i> Crear
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  #calendarGrid { position: relative; }
+  .calendar-card .btn-delete { display: none; }
+  .calendar-card:hover .btn-delete { display: flex; }
+  @media (hover: none) {
+    .calendar-card .btn-delete { display: flex; }
+  }
+</style>
