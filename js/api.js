@@ -1,5 +1,5 @@
 const API = {
-  baseUrl: 'http://localhost:1059/api/v1',
+  baseUrl: '/api/v1',
 
   async request(endpoint, options = {}) {
     const url = this.baseUrl + endpoint;
