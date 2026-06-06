@@ -124,16 +124,17 @@ function renderCalendario() {
   const grid = document.getElementById('calendarGrid');
   const today = Utils.formatDateISO(new Date());
 
-  let html = '<div class="time-col"><div class="day-header" style="background:transparent;border-bottom:none">&nbsp;</div>';
+  let html = '<div class="time-col"><div class="day-header time-header">&nbsp;</div>';
 
   for (let i = 0; i < TOTAL_SLOTS; i++) {
     const h = Math.floor(i / 2) + TIME_START;
     const m = (i % 2) * 30;
-    if (m === 0) {
-      html += '<div class="time-slot" style="font-weight:600;font-size:0.75rem">' + h + ':00</div>';
-    } else {
-      html += '<div class="time-slot" style="font-size:0.6rem;color:var(--text-muted);opacity:0.5">' + String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + '</div>';
-    }
+    const isHour = m === 0;
+    html += '<div class="time-slot' + (isHour ? ' hour-mark' : ' half-hour-mark') + '">' +
+      (isHour
+        ? '<span class="hour-label">' + h + ':00</span>'
+        : '<span class="half-hour-label">' + String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + '</span>') +
+      '</div>';
   }
   html += '</div>';
 
@@ -142,13 +143,14 @@ function renderCalendario() {
     const dateStr = Utils.formatDateISO(date);
     const isToday = dateStr === today;
 
-    html += '<div class="day-col" data-day="' + d + '" data-date="' + dateStr + '">';
+    html += '<div class="day-col' + (isToday ? ' today-col' : '') + '" data-day="' + d + '" data-date="' + dateStr + '">';
     html += '<div class="day-header' + (isToday ? ' today' : '') + '">' +
       Utils.DAYS_SHORT[d] + '<span class="day-num">' + date.getDate() + '</span></div>';
     html += '<div class="day-slots" data-day="' + d + '" data-date="' + dateStr + '">';
 
     for (let i = 0; i < TOTAL_SLOTS; i++) {
-      html += '<div class="slot" data-slot="' + i + '" data-day="' + d + '"></div>';
+      const isHour = i % 2 === 0;
+      html += '<div class="slot' + (isHour ? ' hour-mark' : '') + '" data-slot="' + i + '" data-day="' + d + '"></div>';
     }
 
     const dayReservas = state.reservas.filter(r => r.fecha === dateStr);
@@ -214,11 +216,11 @@ function timeToPixels(timeStr) {
   if (!timeStr) return 0;
   const [h, m] = timeStr.split(':').map(Number);
   const totalMinutes = (h - TIME_START) * 60 + m;
-  return (totalMinutes / SLOT_MINUTES) * (SLOT_HEIGHT / 2);
+  return (totalMinutes / SLOT_MINUTES) * SLOT_HEIGHT;
 }
 
 function pixelsToTime(pixels) {
-  const slotIndex = Math.round(pixels / (SLOT_HEIGHT / 2));
+  const slotIndex = Math.round(pixels / SLOT_HEIGHT);
   const totalMinutes = slotIndex * SLOT_MINUTES;
   const h = Math.floor(totalMinutes / 60) + TIME_START;
   const m = totalMinutes % 60;
@@ -232,7 +234,7 @@ function onSlotClick(e) {
   const date = Utils.addDays(state.weekStart, day);
   const dateStr = Utils.formatDateISO(date);
 
-  const [h, m] = pixelsToTime(slotIdx * (SLOT_HEIGHT / 2)).split(':').map(Number);
+  const [h, m] = pixelsToTime(slotIdx * SLOT_HEIGHT).split(':').map(Number);
   const timeStr = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
 
   const dayLabel = Utils.DAYS[date.getDay()] + ' ' + date.getDate();
@@ -411,7 +413,7 @@ function onDragMove(e) {
   const pos = getEventPos(e);
   const dd = state.dragData;
   const relY = pos.y - dd.containerTop - dd.offsetY;
-  const maxY = TOTAL_SLOTS * (SLOT_HEIGHT / 2) - dd.card.offsetHeight;
+  const maxY = TOTAL_SLOTS * SLOT_HEIGHT - dd.card.offsetHeight;
   const clampedY = Math.max(0, Math.min(relY, maxY));
   dd.card.style.top = clampedY + 'px';
   e.preventDefault();

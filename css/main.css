@@ -502,6 +502,9 @@ body {
   min-height: 600px;
   position: relative;
 }
+.calendar-grid .day-col.today-col {
+  background: rgba(59, 130, 246, 0.02);
+}
 .calendar-grid .day-col:last-child {
   border-right: none;
 }
@@ -523,6 +526,20 @@ body {
   font-weight: 700;
   color: var(--text);
 }
+
+.calendar-grid .day-header.today {
+  background: #EFF6FF;
+  border-bottom: 2px solid #3B82F6;
+}
+.calendar-grid .day-header.today .day-num {
+  color: #2563EB;
+}
+.calendar-grid .day-header.time-header {
+  background: transparent;
+  border-bottom: none;
+  min-height: 52px;
+}
+
 .calendar-grid .time-slot {
   height: 40px;
   border-bottom: 1px solid var(--border-light);
@@ -533,11 +550,27 @@ body {
   align-items: start;
   justify-content: end;
 }
+.time-slot.hour-mark {
+  border-bottom: 3px solid var(--border);
+}
+.time-slot.half-hour-mark {
+  border-bottom: 1px dashed var(--border-light);
+}
+.time-slot .hour-label {
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: var(--text);
+}
+.time-slot .half-hour-label {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  opacity: 0.5;
+}
 
 .day-slots {
   position: relative;
   height: 100%;
-  min-height: 640px;
+  min-height: 1280px;
 }
 
 .day-slots .slot {
@@ -546,8 +579,19 @@ body {
   cursor: pointer;
   transition: background 0.1s;
 }
+.day-slots .slot.hour-mark {
+  border-bottom: 3px solid var(--border);
+}
+.day-slots .slot:not(.hour-mark) {
+  border-bottom: 1px dashed var(--border-light);
+}
 .day-slots .slot:hover {
   background: rgba(59,130,246,0.05);
+}
+
+.day-slots .slot:nth-child(4n+1),
+.day-slots .slot:nth-child(4n+2) {
+  background: rgba(59, 130, 246, 0.02);
 }
 
 .calendar-card {
@@ -706,8 +750,17 @@ body {
     height: 44px;
     font-size: 0.75rem;
   }
+  .time-slot.hour-mark {
+    border-bottom-width: 3px;
+  }
   .day-slots .slot {
     height: 44px;
+  }
+  .day-slots .slot.hour-mark {
+    border-bottom-width: 3px;
+  }
+  .calendar-grid .day-header.time-header {
+    min-height: 44px;
   }
   .calendar-grid .day-header {
     font-size: 0.7rem;
@@ -761,8 +814,17 @@ body {
     font-size: 0.6rem;
     padding: 1px 3px;
   }
+  .time-slot.hour-mark {
+    border-bottom-width: 2px;
+  }
   .day-slots .slot {
     height: 36px;
+  }
+  .day-slots .slot.hour-mark {
+    border-bottom-width: 2px;
+  }
+  .calendar-grid .day-header.time-header {
+    min-height: 44px;
   }
   .calendar-grid .day-header {
     font-size: 0.6rem;
