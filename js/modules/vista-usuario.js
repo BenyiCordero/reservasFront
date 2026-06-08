@@ -19,7 +19,6 @@ export function init() {
   document.body.classList.add('fullscreen-mode');
 
   document.getElementById('vuBack').addEventListener('click', volverSalas);
-  document.getElementById('vuExit').addEventListener('click', salir);
   document.getElementById('vuPrevWeek').addEventListener('click', () => navegarSemana(-1));
   document.getElementById('vuNextWeek').addEventListener('click', () => navegarSemana(1));
   document.getElementById('vuToday').addEventListener('click', irAHoy);
