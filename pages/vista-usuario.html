@@ -1,0 +1,34 @@
+<div id="vista-usuario" class="vu-container">
+  <div id="vu-room-selector" class="vu-room-selector">
+    <h1 class="vu-title">Vista de Usuario</h1>
+    <p class="vu-subtitle">Selecciona una sala para ver su calendario</p>
+    <div id="vu-room-grid" class="vu-room-grid"></div>
+  </div>
+
+  <div id="vu-calendar-view" class="vu-calendar-view">
+    <div class="vu-header">
+      <button class="vu-btn-back" id="vuBack"><i class="fas fa-arrow-left"></i> Salas</button>
+      <h2 id="vuRoomName"></h2>
+      <div class="vu-nav">
+        <button class="vu-nav-btn" id="vuPrevWeek"><i class="fas fa-chevron-left"></i></button>
+        <span id="vuWeekLabel"></span>
+        <button class="vu-nav-btn" id="vuNextWeek"><i class="fas fa-chevron-right"></i></button>
+        <button class="vu-today-btn" id="vuToday">Hoy</button>
+      </div>
+      <button class="vu-btn-exit" id="vuExit" title="Salir"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="vu-calendar-body">
+      <div class="vu-calendar-content">
+        <div class="calendar-grid" id="vuCalendarGrid">
+          <div class="time-col">
+            <div class="day-header" style="background:transparent;border-bottom:none">&nbsp;</div>
+          </div>
+        </div>
+      </div>
+      <div id="vuLoading" class="text-center py-5 d-none">
+        <div class="spinner-table"></div>
+        <p class="text-muted mt-2">Cargando reservas...</p>
+      </div>
+    </div>
+  </div>
+</div>

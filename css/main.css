@@ -435,6 +435,211 @@ body {
   #main-content { padding: 1rem; }
 }
 
+/* Fullscreen Mode */
+.fullscreen-mode #sidebar,
+.fullscreen-mode #topbar {
+  display: none;
+}
+.fullscreen-mode #main-content {
+  margin: 0;
+  padding: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: 100vh;
+  z-index: 1000;
+}
+
+/* Vista de Usuario */
+.vu-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.vu-room-selector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 2rem;
+}
+.vu-title {
+  font-weight: 700;
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+.vu-subtitle {
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+.vu-room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  max-width: 800px;
+  width: 100%;
+}
+.vu-room-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-align: center;
+}
+.vu-room-card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 8px 24px rgba(59,130,246,0.15);
+  transform: translateY(-4px);
+}
+.vu-room-icon {
+  font-size: 2.5rem;
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+.vu-room-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.vu-calendar-view {
+  display: none;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+.vu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0.6rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.vu-header h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0;
+  white-space: nowrap;
+}
+.vu-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.vu-nav-btn {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.vu-nav-btn:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.vu-nav span {
+  font-weight: 600;
+  font-size: 0.9rem;
+  min-width: 200px;
+  text-align: center;
+}
+.vu-today-btn {
+  border: 1.5px solid var(--primary);
+  background: var(--surface);
+  color: var(--primary);
+  border-radius: 8px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.vu-today-btn:hover {
+  background: var(--primary);
+  color: #fff;
+}
+.vu-btn-back, .vu-btn-exit {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.vu-btn-back:hover, .vu-btn-exit:hover {
+  background: var(--border-light);
+  border-color: var(--text-muted);
+}
+
+.vu-calendar-body {
+  flex: 1;
+  overflow: auto;
+  padding: 1rem 1.25rem;
+  background: var(--bg);
+}
+.vu-calendar-content {
+  min-width: 0;
+}
+
+.vu-slot {
+  cursor: default !important;
+}
+.vu-slot:hover {
+  background: transparent !important;
+}
+
+#vuCalendarGrid .calendar-card {
+  cursor: default !important;
+}
+#vuCalendarGrid .calendar-card:active {
+  cursor: default !important;
+}
+
+/* Responsive for vista-usuario */
+@media (max-width: 767.98px) {
+  .vu-room-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+  }
+  .vu-header {
+    padding: 0.5rem 0.75rem;
+  }
+  .vu-header h2 {
+    font-size: 0.9rem;
+  }
+  .vu-nav span {
+    font-size: 0.75rem;
+    min-width: 120px;
+  }
+  .vu-calendar-body {
+    padding: 0.5rem;
+  }
+}
+
 /* Calendar Styles */
 .calendar-header {
   display: flex;
