@@ -324,7 +324,7 @@ async function confirmarReserva(tempId) {
 }
 
 async function eliminarReserva(id) {
-  const ok = await Utils.confirmAction('¿Desea cancelar esta reserva?', 'Cancelar Reserva', 'Eliminarx');
+  const ok = await Utils.confirmAction('¿Desea cancelar esta reserva?', 'Cancelar Reserva', 'Eliminar');
   if (!ok) return;
 
   try {
