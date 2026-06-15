@@ -11,19 +11,157 @@ let state = {
   reservas: [],
 };
 
+let autoRefreshInterval = null;
+let timeIndicatorInterval = null;
+
 export function init() {
   state.weekStart = Utils.getWeekStart(new Date());
-  state.salaId = null;
   state.reservas = [];
 
   document.body.classList.add('fullscreen-mode');
 
-  document.getElementById('vuBack').addEventListener('click', volverSalas);
   document.getElementById('vuPrevWeek').addEventListener('click', () => navegarSemana(-1));
   document.getElementById('vuNextWeek').addEventListener('click', () => navegarSemana(1));
   document.getElementById('vuToday').addEventListener('click', irAHoy);
 
+  const cachedSalaId = localStorage.getItem('vuSalaId');
+  const cachedSalaNombre = localStorage.getItem('vuSalaNombre');
+
+  if (cachedSalaId && cachedSalaNombre) {
+    state.salaId = parseInt(cachedSalaId);
+    state.salaNombre = cachedSalaNombre;
+    document.getElementById('vu-room-selector').style.display = 'none';
+    document.getElementById('vu-calendar-view').style.display = 'flex';
+    document.getElementById('vuRoomName').textContent = cachedSalaNombre;
+    cargarSemana();
+  } else {
+    cargarSalas();
+  }
+
+  iniciarAutoRefresh();
+  iniciarTimeIndicator();
+
+  document.getElementById('vuRoomName').addEventListener('click', function (e) {
+    if (e.detail === 3) {
+      limpiarCacheSala();
+    }
+  });
+}
+
+export function destroy() {
+  detenerAutoRefresh();
+  detenerTimeIndicator();
+}
+
+function iniciarAutoRefresh() {
+  detenerAutoRefresh();
+  autoRefreshInterval = setInterval(() => {
+    if (state.salaId) {
+      cargarSemana(true);
+    }
+  }, 30000);
+}
+
+function detenerAutoRefresh() {
+  if (autoRefreshInterval) {
+    clearInterval(autoRefreshInterval);
+    autoRefreshInterval = null;
+  }
+}
+
+function iniciarTimeIndicator() {
+  detenerTimeIndicator();
+  renderTimeIndicator();
+  timeIndicatorInterval = setInterval(renderTimeIndicator, 60000);
+}
+
+function detenerTimeIndicator() {
+  if (timeIndicatorInterval) {
+    clearInterval(timeIndicatorInterval);
+    timeIndicatorInterval = null;
+  }
+}
+
+function renderTimeIndicator() {
+  const existing = document.getElementById('nowIndicator');
+  if (existing) existing.remove();
+
+  const grid = document.getElementById('vuCalendarGrid');
+  if (!grid) return;
+
+  const timeCol = grid.querySelector('.time-col');
+  if (!timeCol) return;
+
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const startMinutes = TIME_START * 60;
+  const endMinutes = TIME_END * 60;
+
+  if (currentMinutes < startMinutes || currentMinutes > endMinutes) return;
+
+  const dayCols = grid.querySelectorAll('.day-col');
+  if (dayCols.length === 0) return;
+
+  const todayDate = Utils.formatDateISO(now);
+  let todayCol = null;
+  dayCols.forEach((col) => {
+    const dateStr = col.dataset.date;
+    if (dateStr === todayDate) {
+      todayCol = col;
+    }
+  });
+
+  if (!todayCol) return;
+
+  const pixelsPerMinute = SLOT_HEIGHT / SLOT_MINUTES;
+  const topPx = (currentMinutes - startMinutes) * pixelsPerMinute;
+
+  const indicator = document.createElement('div');
+  indicator.id = 'nowIndicator';
+  indicator.className = 'now-indicator';
+
+  const firstCol = grid.querySelector('.day-col');
+  if (!firstCol) return;
+
+  const gridRect = grid.getBoundingClientRect();
+  const firstColRect = firstCol.getBoundingClientRect();
+  const timeColRect = timeCol.getBoundingClientRect();
+  const leftOffset = timeColRect.width;
+
+  indicator.style.top = topPx + 'px';
+  indicator.style.left = '0';
+  indicator.style.right = '0';
+  indicator.style.position = 'absolute';
+  indicator.style.zIndex = '50';
+  indicator.style.height = '2px';
+
+  const dot = document.createElement('div');
+  dot.className = 'now-indicator-dot';
+
+  grid.style.position = 'relative';
+  grid.appendChild(indicator);
+  grid.appendChild(dot);
+
+  dot.style.position = 'absolute';
+  dot.style.top = (topPx - 5) + 'px';
+  dot.style.left = (leftOffset - 6) + 'px';
+  dot.style.zIndex = '50';
+}
+
+function limpiarCacheSala() {
+  localStorage.removeItem('vuSalaId');
+  localStorage.removeItem('vuSalaNombre');
+  state.salaId = null;
+  state.salaNombre = '';
+  state.reservas = [];
+  detenerAutoRefresh();
+
+  document.getElementById('vu-calendar-view').style.display = 'none';
+  document.getElementById('vu-room-selector').style.display = 'flex';
+
   cargarSalas();
+
+  Utils.showToast('Caché de sala limpiada. Selecciona una sala.', 'info');
 }
 
 async function cargarSalas() {
@@ -55,20 +193,20 @@ function seleccionarSala(id, nombre) {
   state.salaId = id;
   state.salaNombre = nombre;
 
+  localStorage.setItem('vuSalaId', id);
+  localStorage.setItem('vuSalaNombre', nombre);
+
   document.getElementById('vu-room-selector').style.display = 'none';
   document.getElementById('vu-calendar-view').style.display = 'flex';
   document.getElementById('vuRoomName').textContent = nombre;
 
+  iniciarAutoRefresh();
   cargarSemana();
 }
 
-function volverSalas() {
-  document.getElementById('vu-calendar-view').style.display = 'none';
-  document.getElementById('vu-room-selector').style.display = 'flex';
-  state.salaId = null;
-}
-
 function salir() {
+  detenerAutoRefresh();
+  detenerTimeIndicator();
   document.body.classList.remove('fullscreen-mode');
   Utils.cargarVista('pages/reservas.html', 'reservas');
 }
@@ -83,11 +221,13 @@ function irAHoy() {
   cargarSemana();
 }
 
-async function cargarSemana() {
+async function cargarSemana(silent) {
   if (!state.salaId) return;
 
   const loading = document.getElementById('vuLoading');
-  loading.classList.remove('d-none');
+  if (!silent) {
+    loading.classList.remove('d-none');
+  }
 
   const inicioStr = Utils.formatDateISO(state.weekStart);
   document.getElementById('vuWeekLabel').textContent = formatWeekLabel(state.weekStart);
@@ -96,9 +236,13 @@ async function cargarSemana() {
     state.reservas = await API.get('/reservas/semana?salaId=' + state.salaId + '&inicio=' + inicioStr);
     renderCalendario();
   } catch (err) {
-    Utils.showToast('Error al cargar reservas: ' + err.message, 'error');
+    if (!silent) {
+      Utils.showToast('Error al cargar reservas: ' + err.message, 'error');
+    }
   } finally {
-    loading.classList.add('d-none');
+    if (!silent) {
+      loading.classList.add('d-none');
+    }
   }
 }
 
@@ -106,7 +250,7 @@ function formatWeekLabel(weekStart) {
   const end = Utils.addDays(weekStart, 6);
   const opts = { day: 'numeric', month: 'short' };
   return Utils.DAYS[weekStart.getDay()] + ' ' + weekStart.toLocaleDateString('es-MX', opts) +
-    ' — ' + Utils.DAYS[end.getDay()] + ' ' + end.toLocaleDateString('es-MX', opts) +
+    ' \u2014 ' + Utils.DAYS[end.getDay()] + ' ' + end.toLocaleDateString('es-MX', opts) +
     ' ' + end.getFullYear();
 }
 
@@ -133,7 +277,7 @@ function renderCalendario() {
     const dateStr = Utils.formatDateISO(date);
     const isToday = dateStr === today;
 
-    html += '<div class="day-col' + (isToday ? ' today-col' : '') + '">';
+    html += '<div class="day-col' + (isToday ? ' today-col' : '') + '" data-day="' + d + '" data-date="' + dateStr + '">';
     html += '<div class="day-header' + (isToday ? ' today' : '') + '">' +
       Utils.DAYS_SHORT[d] + '<span class="day-num">' + date.getDate() + '</span></div>';
     html += '<div class="day-slots">';
@@ -152,6 +296,7 @@ function renderCalendario() {
   }
 
   grid.innerHTML = html;
+  renderTimeIndicator();
 }
 
 function buildCardHTML(item) {
